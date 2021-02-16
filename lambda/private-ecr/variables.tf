@@ -20,6 +20,12 @@ variable "memory_size" {
   description = "The memory to be provided for the lambda (in megabytes)"
 }
 
+variable "policy_arns" {
+  type = list(string)
+  default = []
+  description = "Additional policy ARNs to attach to the role"
+}
+
 variable "policy_json" {
   type = string
   default = <<EOF

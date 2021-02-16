@@ -33,6 +33,12 @@ resource "aws_iam_role_policy_attachment" "basic_policy" {
   role = aws_iam_role.iam_for_lambda.id
 }
 
+resource "aws_iam_role_policy_attachment" "extra_policies" {
+  for_each = toset(var.policy_arns)
+  policy_arn = each.value
+  role = aws_iam_role.iam_for_lambda.id
+}
+
 resource "aws_iam_role_policy" "policy" {
   policy = var.policy_json
   role = aws_iam_role.iam_for_lambda.id
