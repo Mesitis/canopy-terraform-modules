@@ -40,11 +40,13 @@ EOF
 variable "security_group_ids" {
   type = list(string)
   description = "List of security group IDs to attach to lambda"
+  default = []
 }
 
 variable "subnet_ids" {
   type = list(string)
   description = "List of subnet IDs to attach to lambda"
+  default = []
 }
 
 variable "tags" {
@@ -57,4 +59,10 @@ variable "environment_variables" {
   type = map(string)
   default = {}
   description = "Environment variables to add to the lambda"
+}
+
+variable "log_retention_in_days" {
+  type = number
+  default = 14
+  description = "Number of days to retail lambda logs"
 }

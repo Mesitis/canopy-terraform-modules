@@ -20,7 +20,7 @@ EOF
 
 resource "aws_cloudwatch_log_group" "lambda" {
   name              = "/aws/lambda/${var.function_name}"
-  retention_in_days = 14
+  retention_in_days = var.log_retention_in_days
 }
 
 resource "aws_iam_role_policy_attachment" "eni_policy" {
@@ -44,6 +44,7 @@ resource "aws_iam_role_policy" "policy" {
   role = aws_iam_role.iam_for_lambda.id
 }
 
+//noinspection MissingProperty
 resource "aws_lambda_function" "lambda" {
   function_name = var.function_name
   package_type = "Image"
@@ -58,9 +59,12 @@ resource "aws_lambda_function" "lambda" {
     variables = var.environment_variables
   }
 
-  vpc_config {
-    security_group_ids = var.security_group_ids
-    subnet_ids = var.subnet_ids
+  dynamic "vpc_config" {
+    for_each = length(var.subnet_ids) > 0 ? ["true"] : []
+    content {
+      security_group_ids = var.security_group_ids
+      subnet_ids = var.subnet_ids
+    }
   }
 
   depends_on = [
