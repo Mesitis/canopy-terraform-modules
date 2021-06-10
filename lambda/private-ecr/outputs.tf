@@ -11,6 +11,6 @@ output "lambda_name" {
 }
 
 output "lambda_iam_role_arn" {
-  value = aws_iam_role.iam_for_lambda.arn
+  value = var.iam_role_arn == "" ? aws_iam_role.iam_for_lambda[0].arn : var.iam_role_arn
 }
 

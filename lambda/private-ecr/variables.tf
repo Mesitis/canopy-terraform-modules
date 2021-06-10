@@ -1,34 +1,34 @@
 variable "function_name" {
-  type = string
+  type        = string
   description = "Name of the lambda"
 }
 
 variable "image_uri" {
-  type = string
+  type        = string
   description = "ECR Image to use for the lambda"
 }
 
 variable "timeout" {
-  type = number
-  default = 10
+  type        = number
+  default     = 10
   description = "The lambda function timeout (in seconds)"
 }
 
 variable "memory_size" {
-  type = number
-  default = 128
+  type        = number
+  default     = 128
   description = "The memory to be provided for the lambda (in megabytes)"
 }
 
 variable "policy_arns" {
-  type = list(string)
-  default = []
+  type        = list(string)
+  default     = []
   description = "Additional policy ARNs to attach to the role"
 }
 
 variable "policy_json" {
-  type = string
-  default = <<EOF
+  type        = string
+  default     = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": []
@@ -38,31 +38,37 @@ EOF
 }
 
 variable "security_group_ids" {
-  type = list(string)
+  type        = list(string)
   description = "List of security group IDs to attach to lambda"
-  default = []
+  default     = []
 }
 
 variable "subnet_ids" {
-  type = list(string)
+  type        = list(string)
   description = "List of subnet IDs to attach to lambda"
-  default = []
+  default     = []
 }
 
 variable "tags" {
-  type = map(string)
-  default = {}
+  type        = map(string)
+  default     = {}
   description = "Tags to add to the lambda"
 }
 
 variable "environment_variables" {
-  type = map(string)
-  default = {}
+  type        = map(string)
+  default     = {}
   description = "Environment variables to add to the lambda"
 }
 
 variable "log_retention_in_days" {
-  type = number
-  default = 14
+  type        = number
+  default     = 14
   description = "Number of days to retail lambda logs"
+}
+
+variable "iam_role_arn" {
+  type        = string
+  default     = ""
+  description = "IAM Role to use for the lambda. (Created if not provided)"
 }
