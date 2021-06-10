@@ -72,3 +72,9 @@ variable "iam_role_arn" {
   default     = ""
   description = "IAM Role to use for the lambda. (Created if not provided)"
 }
+
+variable "provisioned_concurrent_executions" {
+  type = number
+  default = 0
+  description = "Amount of provisioned capacity to allocate"
+}

@@ -58,6 +58,7 @@ resource "aws_lambda_function" "lambda" {
   timeout          = var.timeout
   memory_size      = var.memory_size
   tags             = merge(var.tags, { Name = var.function_name })
+  publish          = true
 
   environment {
     variables = var.environment_variables
@@ -77,4 +78,19 @@ resource "aws_lambda_function" "lambda" {
     aws_iam_role_policy.policy,
     aws_cloudwatch_log_group.lambda,
   ]
+}
+
+resource "aws_lambda_alias" "latest" {
+  function_name = aws_lambda_function.lambda.function_name
+  function_version = aws_lambda_function.lambda.version
+  name = "latest"
+  depends_on = [aws_lambda_function.lambda]
+}
+
+resource "aws_lambda_provisioned_concurrency_config" "lambda" {
+  count = var.provisioned_concurrent_executions > 0 ? 1 : 0
+  function_name = aws_lambda_function.lambda.arn
+  provisioned_concurrent_executions = var.provisioned_concurrent_executions
+  qualifier = aws_lambda_alias.latest.name
+  depends_on = [aws_lambda_function.lambda, aws_lambda_alias.latest]
 }
