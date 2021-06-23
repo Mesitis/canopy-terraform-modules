@@ -1,3 +1,7 @@
+locals {
+  has_autoscaling = var.autoscaling_start_schedule != "" && var.autoscaling_end_schedule != "" && var.autoscaling_max_capacity > 0
+}
+
 resource "aws_iam_role" "iam_for_lambda" {
   count = var.iam_role_arn == "" ? 1 : 0
   name  = "${var.function_name}Role"
@@ -81,16 +85,30 @@ resource "aws_lambda_function" "lambda" {
 }
 
 resource "aws_lambda_alias" "latest" {
-  function_name = aws_lambda_function.lambda.function_name
+  function_name    = aws_lambda_function.lambda.function_name
   function_version = aws_lambda_function.lambda.version
-  name = "latest"
-  depends_on = [aws_lambda_function.lambda]
+  name             = "latest"
+  depends_on       = [aws_lambda_function.lambda]
 }
 
 resource "aws_lambda_provisioned_concurrency_config" "lambda" {
-  count = var.provisioned_concurrent_executions > 0 ? 1 : 0
-  function_name = aws_lambda_function.lambda.arn
+  count                             = var.provisioned_concurrent_executions > 0 ? 1 : 0
+  function_name                     = aws_lambda_function.lambda.arn
   provisioned_concurrent_executions = var.provisioned_concurrent_executions
-  qualifier = aws_lambda_alias.latest.name
-  depends_on = [aws_lambda_function.lambda, aws_lambda_alias.latest]
+  qualifier                         = aws_lambda_alias.latest.name
+  depends_on                        = [aws_lambda_function.lambda, aws_lambda_alias.latest]
+}
+
+module "autoscaling" {
+  count                        = local.has_autoscaling ? 1 : 0
+  source                       = "github.com/Mesitis/canopy-terraform-modules//autoscaling/application/scheduled"
+  max_capacity                 = var.autoscaling_max_capacity
+  min_capacity                 = var.autoscaling_min_capacity
+  resource_id                  = "function:${aws_lambda_function.lambda.function_name}:${aws_lambda_alias.latest.name}"
+  scheduled_action_name_prefix = aws_lambda_function.lambda.function_name
+  scalable_dimension           = "lambda:function:ProvisionedConcurrency"
+  service_namespace            = "lambda"
+  start_schedule               = var.autoscaling_start_schedule
+  end_schedule                 = var.autoscaling_end_schedule
+  depends_on                   = [aws_lambda_alias.latest]
 }

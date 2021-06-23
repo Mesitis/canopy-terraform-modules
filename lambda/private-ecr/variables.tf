@@ -74,7 +74,30 @@ variable "iam_role_arn" {
 }
 
 variable "provisioned_concurrent_executions" {
-  type = number
-  default = 0
+  type        = number
+  default     = 0
   description = "Amount of provisioned capacity to allocate"
+}
+
+#
+# Lambda Autoscaling
+#
+variable "autoscaling_start_schedule" {
+  type    = string
+  default = ""
+}
+
+variable "autoscaling_end_schedule" {
+  type    = string
+  default = ""
+}
+
+variable "autoscaling_min_capacity" {
+  type    = number
+  default = 0
+}
+
+variable "autoscaling_max_capacity" {
+  type    = number
+  default = 0
 }
