@@ -6,7 +6,7 @@ data "aws_eks_cluster_auth" "this" {
   name = var.cluster_name
 }
 
-resource "null_resource" "cluster_registration" {
+resource "null_resource" "kubectl" {
   triggers = {
     cluster_name = var.cluster_name
     args         = var.args
