@@ -73,6 +73,12 @@ variable "iam_role_arn" {
   description = "IAM Role to use for the lambda. (Created if not provided)"
 }
 
+variable "iam_role_name_prefix" {
+  type        = string
+  default     = ""
+  description = "Name prefix to be used when creating an IAM Role to use for the lambda."
+}
+
 variable "provisioned_concurrent_executions" {
   type        = number
   default     = 0

@@ -4,7 +4,8 @@ locals {
 
 resource "aws_iam_role" "iam_for_lambda" {
   count = var.iam_role_arn == "" ? 1 : 0
-  name_prefix = "${var.function_name}-"
+  name = var.iam_role_name_prefix == "" ? var.function_name : null
+  name_prefix = var.iam_role_name_prefix != "" ? var.iam_role_name_prefix : null
 
   assume_role_policy = <<EOF
 {
