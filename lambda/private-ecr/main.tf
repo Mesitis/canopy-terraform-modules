@@ -2,9 +2,10 @@ locals {
   has_autoscaling = var.autoscaling_start_schedule != "" && var.autoscaling_end_schedule != "" && var.autoscaling_max_capacity > 0
 }
 
+//noinspection ConflictingProperties
 resource "aws_iam_role" "iam_for_lambda" {
   count = var.iam_role_arn == "" ? 1 : 0
-  name = var.iam_role_name_prefix == "" ? var.function_name : null
+  name = var.iam_role_name_prefix == "" ? "${var.function_name}Role" : null
   name_prefix = var.iam_role_name_prefix != "" ? var.iam_role_name_prefix : null
 
   assume_role_policy = <<EOF
