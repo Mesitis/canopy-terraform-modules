@@ -1,45 +1,18 @@
-data "aws_eks_cluster" "this" {
-  name = var.cluster_name
-}
-
-data "aws_eks_cluster_auth" "this" {
-  name = var.cluster_name
+module "kubeconfig_generator" {
+  source       = "git::https://github.com/Mesitis/canopy-terraform-modules//eks/kubectl/kubeconfig"
+  cluster_name = var.cluster_name
 }
 
 resource "null_resource" "kubectl" {
   triggers = {
-    cluster_name = var.cluster_name
-    args         = var.args
+    kubeconfig = base64encode(module.kubeconfig_generator.kubeconfig)
+    cmd  = "kubectl ${var.args} --kubeconfig <(echo $KUBECONFIG | base64 --decode)"
   }
-
   provisioner "local-exec" {
-    command = "/bin/bash ${path.module}/wrapper.sh ${self.triggers.args}"
-    interpreter = [
-      "/bin/bash", "-c"
-    ]
+    interpreter = ["/bin/bash", "-c"]
     environment = {
-      CLUSTER_NAME   = self.triggers.cluster_name
-      CA_CERTIFICATE = base64decode(data.aws_eks_cluster.this.certificate_authority.0.data)
-      KUBESERVER     = data.aws_eks_cluster.this.endpoint
-      KUBETOKEN      = data.aws_eks_cluster_auth.this.token
+      KUBECONFIG = self.triggers.kubeconfig
     }
+    command = self.triggers.cmd
   }
-  //
-  //  dynamic "provisioner" {
-  //    for_each = var.destroy_args == "" ? [] : [true]
-  //    labels = ["local-exec"]
-  //    content {
-  //      when    = destroy
-  //      command = "/bin/bash ${path.module}/wrapper.sh ${self.triggers.destroy_args}"
-  //      interpreter = [
-  //        "/bin/bash", "-c"
-  //      ]
-  //      environment = {
-  //        CLUSTER_NAME = self.triggers.cluster_name
-  //        CA_CERTIFICATE = base64decode(data.aws_eks_cluster.this.certificate_authority.0.data)
-  //        KUBESERVER = data.aws_eks_cluster.this.endpoint
-  //        KUBETOKEN = data.aws_eks_cluster_auth.this.token
-  //      }
-  //    }
-  //  }
 }
