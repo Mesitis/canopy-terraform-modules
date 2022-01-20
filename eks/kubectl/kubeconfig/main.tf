@@ -20,7 +20,7 @@ locals {
       {
         name    = data.aws_eks_cluster.this.name
         cluster = {
-          certificate-authority-data = data.aws_eks_cluster.this[0].certificate_authority[0].data
+          certificate-authority-data = data.aws_eks_cluster.this.certificate_authority[0].data
           server                     = data.aws_eks_cluster.this.endpoint
         }
       }
