@@ -5,13 +5,12 @@ module "kubeconfig_generator" {
 
 resource "null_resource" "kubectl" {
   triggers = {
-    kubeconfig = base64encode(module.kubeconfig_generator.kubeconfig)
     cmd  = "kubectl ${var.args} --kubeconfig <(echo $KUBECONFIG | base64 --decode)"
   }
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     environment = {
-      KUBECONFIG = self.triggers.kubeconfig
+      KUBECONFIG = base64encode(module.kubeconfig_generator.kubeconfig)
     }
     command = self.triggers.cmd
   }
