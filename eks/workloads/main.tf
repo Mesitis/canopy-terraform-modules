@@ -43,7 +43,7 @@ resource "kubernetes_secret" "configs" {
 }
 
 module "yaml_resources" {
-  source       = "git::https://github.com/Mesitis/canopy-terraform-modules//eks/kubectl/kubeconfig"
+  source       = "git::https://github.com/Mesitis/canopy-terraform-modules//eks/kubectl/apply"
   cluster_name = var.cluster_name
   manifests    = var.yaml_resources
   validate     = false
