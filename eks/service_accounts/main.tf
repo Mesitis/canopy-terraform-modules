@@ -13,7 +13,7 @@ data "aws_kms_alias" "s3" {
 locals {
   kms_s3_usage_policy = {
     name_prefix = "s3-kms-key-",
-    statements = [
+    statements  = [
       {
         Action = [
           "kms:Decrypt",
@@ -34,7 +34,8 @@ locals {
 
   role_creation_map = {
     for account in tolist(var.service_accounts) :
-    "${var.role_name_prefix}eks-${data.aws_eks_cluster.this.name}-${account["name"]}-${account["namespace"]}-sa${var.role_name_suffix}" => {
+    contains(keys(var.override_names), account["name"]) ? var.override_names[account["name"]] : "${var.role_name_prefix}eks-${data.aws_eks_cluster.this.name}-${account["name"]}-${account["namespace"]}-sa${var.role_name_suffix}"
+    => {
       attach_policy_arns = account["attach_policy_arns"]
 
       # Generate inline policies based on the buckets given
@@ -44,7 +45,7 @@ locals {
         length(account["rw_buckets"]) == 0 ? [] : [
           {
             name_prefix = "s3-rw-",
-            statements = [
+            statements  = [
               {
                 Action = [
                   "s3:GetObject*",
@@ -68,7 +69,7 @@ locals {
         length(account["ro_buckets"]) == 0 ? [] : [
           {
             name_prefix = "s3-ro-",
-            statements = [
+            statements  = [
               {
                 Action = [
                   "s3:GetObject*",
@@ -172,7 +173,7 @@ resource "kubernetes_service_account" "service_account" {
   metadata {
     name      = each.value["name"]
     namespace = each.value["namespace"]
-    labels = {
+    labels    = {
       aws-usage = "application"
       type      = "aws-iam-serviceaccount"
     }
@@ -197,7 +198,7 @@ resource "aws_iam_role_policy" "inline-attachments" {
   provider    = aws.roles
   name_prefix = each.value["policy_name_prefix"]
   role        = aws_iam_role.service_account_role[each.value["role"]].name
-  policy = jsonencode({
+  policy      = jsonencode({
     Version   = "2012-10-17",
     Statement = each.value["statements"]
   })

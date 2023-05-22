@@ -20,18 +20,24 @@ variable "role_name_prefix" {
   default     = ""
 }
 
+variable "override_names" {
+  description = "Override the names of the roles"
+  type        = map(string)
+  default     = {}
+}
+
 variable "service_accounts" {
   description = "Service accounts to create"
-  type = set(object({
+  type        = set(object({
     name                     = string
     namespace                = string
     attach_policy_arns       = set(string)
     with_k8s_service_account = bool
     rw_buckets               = set(string)
     ro_buckets               = set(string)
-    inline_policies = set(object({
+    inline_policies          = set(object({
       name_prefix = string
-      statements = set(object({
+      statements  = set(object({
         Resource = set(string)
         Action   = set(string)
         Effect   = string
